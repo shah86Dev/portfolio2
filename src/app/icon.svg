@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="The Digital Frontier">
+  <rect width="32" height="32" rx="7" fill="#05070c" />
+  <circle cx="16" cy="16" r="9" fill="none" stroke="#16667a" stroke-width="1.5" />
+  <circle cx="16" cy="16" r="3.25" fill="#38d6f2" />
+  <circle cx="16" cy="7" r="2" fill="#38d6f2" />
+  <circle cx="23.79" cy="20.5" r="2" fill="#7ee7fb" opacity="0.75" />
+  <circle cx="8.21" cy="20.5" r="2" fill="#7ee7fb" opacity="0.75" />
+</svg>

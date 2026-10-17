@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   DESIGN TOKENS — "The Digital Frontier"
+   Single source of truth. Components must consume these, never raw hex.
+   Contrast ratios noted against --color-void (#05070C) and verified by hand.
+   =========================================================================== */
+
+@theme {
+  /* --- Surfaces -------------------------------------------------------- */
+  --color-void: #05070c; /* page background */
+  --color-surface: #090d15; /* cards, panels */
+  --color-surface-raised: #0e1420; /* hovered / active panels */
+  --color-surface-sunken: #03050a; /* wells, code blocks */
+
+  /* --- Structure ------------------------------------------------------- */
+  --color-line: #18212f; /* hairlines, dividers */
+  --color-line-strong: #27344a; /* emphasised borders */
+  --color-grid: #0f1724; /* technical grid overlay */
+
+  /* --- Ink (warm white family) ----------------------------------------- */
+  --color-ink: #edeae3; /* 17.9:1 — headings, body */
+  --color-ink-muted: #9aa3b2; /*  8.0:1 — secondary prose */
+  --color-ink-faint: #7b8595; /*  5.4:1 — meta, captions */
+
+  /* --- Signal (the one accent) ----------------------------------------- */
+  --color-signal: #38d6f2; /* 11.6:1 — links, active state */
+  --color-signal-strong: #7ee7fb; /* hover */
+  --color-signal-dim: #16667a; /* borders, underlays */
+  --color-signal-wash: #0b2630; /* tinted surfaces */
+
+  /* --- Status ---------------------------------------------------------- */
+  --color-status-live: #5ddba4;
+  --color-status-built: #38d6f2;
+  --color-status-proto: #d9b45c;
+  --color-status-wip: #8e9ab0;
+
+  /* --- Typography ------------------------------------------------------ */
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "Cascadia Code", monospace;
+
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.45;
+  --text-micro--letter-spacing: 0.14em;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.55;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.65;
+
+  --text-h4: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --text-h4--line-height: 1.4;
+
+  --text-h3: clamp(1.25rem, 1.12rem + 0.6vw, 1.625rem);
+  --text-h3--line-height: 1.3;
+
+  --text-h2: clamp(1.875rem, 1.45rem + 1.8vw, 3rem);
+  --text-h2--line-height: 1.12;
+  --text-h2--letter-spacing: -0.02em;
+
+  --text-h1: clamp(2.375rem, 1.6rem + 3.2vw, 4.25rem);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-display: clamp(2.75rem, 1.4rem + 5.6vw, 6.5rem);
+  --text-display--line-height: 0.96;
+  --text-display--letter-spacing: -0.04em;
+
+  /* --- Radii ----------------------------------------------------------- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 22px;
+
+  /* --- Motion ---------------------------------------------------------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- Layout ---------------------------------------------------------- */
+  --container-measure: 46rem; /* comfortable reading width */
+  --container-frame: 84rem; /* outer page frame */
+}
+
+:root {
+  /* Durations are not a Tailwind namespace; exposed as plain custom props. */
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 3px;
+
+  --page-gutter: 1.25rem;
+  color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 2.5rem;
+  }
+}
+
+/* ===========================================================================
+   BASE
+   =========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Smooth anchor scrolling only when the visitor has not asked us to stop. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One focus treatment everywhere. Visible on dark and on signal-tinted
+     surfaces alike. */
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-signal);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-signal-dim);
+    color: var(--color-ink);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-void);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-signal-dim);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Entrance reveal. Driven by an IntersectionObserver setting data-shown.
+   The <noscript> rule in the root layout forces these visible when there is
+   no JavaScript to set the attribute.
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity var(--dur-slow) var(--ease-out-expo),
+      transform var(--dur-slow) var(--ease-out-expo);
+  }
+
+  .reveal[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ===========================================================================
+   REDUCED MOTION — global backstop.
+   Component-level logic also checks the preference, but this guarantees that
+   nothing CSS-driven animates even if a component forgets.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Never leave revealed content stranded at opacity 0 when the transition
+     that would have shown it has been disabled. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ===========================================================================
+   UTILITIES
+   =========================================================================== */
+
+@utility frame {
+  width: 100%;
+  max-width: var(--container-frame);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+@utility measure {
+  max-width: var(--container-measure);
+}
+
+/* The fine technical grid used behind immersive blocks. */
+@utility grid-field {
+  background-image:
+    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Fades a decorative layer out toward the edges so it never fights text. */
+@utility mask-fade-edges {
+  mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, #000 62%, transparent 100%);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: 1.45;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
