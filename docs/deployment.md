@@ -1,8 +1,8 @@
 # Deploying to Vercel
 
-**This site has not been deployed.** Everything below is the preparation that
-has been done and the exact steps left for you. Nothing here claims a
-deployment that has not happened.
+**This site has not been deployed.** The code is on GitHub; no Vercel project
+exists yet. Everything below is the preparation that has been done and the
+exact steps left. Nothing here claims a deployment that has not happened.
 
 ---
 
@@ -13,51 +13,57 @@ deployment that has not happened.
 | Production build succeeds locally | ✅ `npm run build`, 11 routes, all prerendered |
 | Required environment variables | **None.** The site builds and runs with an empty environment |
 | Secrets in the repository | None. There is no `.env`, and the only variable is public by design |
-| `.gitignore` | Covers `node_modules`, `.next`, `.env*`, `.vercel`, test output |
+| `.gitignore` | Covers `node_modules`, `.next`, `.env*`, `.vercel`, test output, raw Lighthouse reports |
 | Rendering mode | Fully static. Every route is prerendered at build time |
 | Vercel config file | Not needed. Vercel detects Next.js and uses the right settings |
 | Asset paths | All local, all root-relative. No remote image host is configured or required |
 
-## Prerequisite: git
+## Step 1 — Put the code on GitHub ✅ done
 
-`git` is **not installed on this machine** — `git --version` is not a
-recognised command, and this directory is not a repository. Install it from
-<https://git-scm.com/download/win>, reopen your terminal, then continue.
+Done on 2026-10-17. Git 2.55.0.5 was installed via
+`winget install --id Git.Git -e`, and the repository was pushed to:
 
-## Step 1 — Put the code on GitHub
+**<https://github.com/shah86Dev/portfolio2>** — branch `main`, first commit
+`1d73810`, 68 files, 453 KiB.
 
-```bash
-git init
-git add .
-git commit -m "Shahzaib portfolio: The Digital Frontier"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
+`npm run verify` passed before the push, so what is on GitHub builds.
 
-Before the first commit, confirm nothing private is going up:
+Two things to be aware of about that push:
 
-```bash
-git status --short
-```
-
-You should see no `.env`, no `node_modules`, no `.next`.
+- The commit author is `Shahzaib <shahzaib8620@gmail.com>`, set per-repository
+  (not globally). If that address is not registered on the GitHub account, the
+  commit will not be attributed to it — add it under GitHub → Settings →
+  Emails, or change `git config user.email` and amend.
+- The contact email in `src/content/site.config.ts` is now in a **public**
+  repository, and it stays in the git history even if the file changes later.
 
 ## Step 2 — Import into Vercel
 
-1. Sign in at <https://vercel.com> with the same GitHub account.
-2. **Add New → Project**, then import the repository.
+1. Sign in at <https://vercel.com> **with GitHub**, as `shah86Dev`. Signing in
+   with email instead will not show the repository.
+2. **Add New → Project**. Find `shah86Dev/portfolio2` and click **Import**.
+   If it is not listed, use **Adjust GitHub App Permissions** and grant Vercel
+   access to that repository.
 3. Vercel detects Next.js. Leave every build setting as detected:
    - Framework preset: **Next.js**
+   - Root directory: `./`
    - Build command: `next build`
    - Output directory: *(leave empty — Vercel handles it)*
    - Install command: `npm install`
-   - Node version: 22 or later
-4. Do **not** add any environment variable yet.
-5. **Deploy.**
+   - Node version: 22.x or later (the default is correct; this project sets no
+     `engines` field, so Vercel picks its current default)
+4. Do **not** add any environment variable yet — see step 3 for why.
+5. **Deploy.** Expect roughly 2–4 minutes for a cold first build.
 
-The first deployment gives you a URL like
-`https://your-repo.vercel.app`. The site works fully at that URL.
+The first deployment gives you a URL like `https://portfolio2.vercel.app`. The
+site works fully at that URL; only its metadata will point at localhost until
+step 3.
+
+**What the build does:** installs all dependencies including dev ones (Vercel
+does this by default), then runs `next build`. Nothing else runs — tests and
+Lighthouse are not part of the build. The `lighthouse` devDependency adds about
+19 MB to the install and a few seconds; harmless, but it can be removed if you
+would rather keep builds lean, since it is only used by hand.
 
 ## Step 3 — Set the public URL
 
@@ -66,17 +72,25 @@ Until `NEXT_PUBLIC_SITE_URL` is set, canonical URLs, `sitemap.xml`,
 `http://localhost:3000`. The site works, but search engines and link previews
 will be wrong.
 
-In **Project → Settings → Environment Variables**:
+This is why the first deploy runs without it: you do not know the URL until
+Vercel has given you one.
+
+In **Project → Settings → Environment Variables → Add New**:
 
 | Name | Value | Environments |
 |------|-------|--------------|
-| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` (no trailing slash) | Production |
+| `NEXT_PUBLIC_SITE_URL` | the deployment's own origin, no trailing slash — e.g. `https://portfolio2.vercel.app` | **Production** only |
 
-Then **redeploy** — `NEXT_PUBLIC_*` values are baked in at build time, so an
-existing deployment will not pick it up.
+Then **Deployments → latest → ⋯ → Redeploy**. `NEXT_PUBLIC_*` values are
+compiled into the output at build time, so an existing deployment will never
+pick up a new value — saving the variable alone changes nothing.
 
-Leave it unset for Preview deployments, or set it to the preview URL if you
-want correct metadata there too.
+Leave it unset for Preview deployments. Previews get a different URL every
+time, so a fixed value there would be wrong more often than right; unset, they
+fall back to localhost metadata, which nobody indexes anyway.
+
+Verify it took effect by opening `/robots.txt` on the deployed site: the
+`Sitemap:` line should name your domain, not `localhost:3000`.
 
 > This variable is public by design: it is the address of your own website.
 > Never put a secret in a `NEXT_PUBLIC_*` variable — they are compiled into
