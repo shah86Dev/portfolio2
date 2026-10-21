@@ -244,8 +244,10 @@ export const projectsInput: Project[] = [
     title: "The Digital Frontier",
     summary:
       "This site: a dark editorial portfolio whose centrepiece is an interactive 3D model of the engineering method — built to stay fully usable with WebGL switched off.",
-    status: "implemented",
+    status: "deployed",
     period: "2026",
+    liveUrl: "https://portfolio2-pi-six-98.vercel.app",
+    repoUrl: "https://github.com/shah86Dev/portfolio2",
     stack: [
       "Next.js 16 (App Router)",
       "TypeScript (strict)",
@@ -302,7 +304,8 @@ export const projectsInput: Project[] = [
         "Keep the 3D layer off the critical path for everybody who does not use it.",
       ],
       limitations: [
-        "Lighthouse has not been run. Bundle sizes were measured directly from the production build; the Lighthouse performance and accessibility scores in the constitution remain targets, not results.",
+        "Performance is measured, not claimed: on the deployed site, Lighthouse medians are 95 desktop and 92 mobile on the home route, 100 and 95 on a case study, with accessibility 100 on all thirty runs. Individual home-route runs fell as low as 85, so the range matters as much as the median.",
+        "The 3D scene costs what it costs. Loading it roughly doubles blocking time on the home route against a real network — 185 ms versus 18 ms on a case study, same origin, same machine. Idle-gating it was tried, measured, and reverted because it moved that cost into the first moments of interaction instead.",
         "No light theme — the brand is a dark surface, and a half-finished light mode would be worse than none.",
         "The contact section is a mailto link, not a form, because no message-delivery mechanism has been built and tested.",
         "Some personal details are still drafted defaults awaiting confirmation; they are marked in src/content/site.config.ts.",

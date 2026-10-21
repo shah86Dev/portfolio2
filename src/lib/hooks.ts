@@ -71,8 +71,23 @@ let compactAtLoad: boolean | null = null;
 
 export function useCompactExperience(): boolean {
   return useSyncExternalStore(
-    noopSubscribe,
-    () => (compactAtLoad ??= window.matchMedia(COMPACT_QUERY).matches),
+    // Subscribed to the query, but the snapshot is latched: crossing the
+    // breakpoint later re-renders and gets the same cached answer, so a
+    // resize never tears the canvas down. The subscription exists only so
+    // the zero-width case below can recover once layout settles.
+    mediaSubscriber(COMPACT_QUERY),
+    () => {
+      if (compactAtLoad !== null) return compactAtLoad;
+
+      // A viewport of zero means the page has not been laid out yet — a
+      // background tab, or an embedded frame before it is sized. Latching
+      // that would wrongly mark a desktop as compact for the rest of the
+      // session, so leave the answer uncached and ask again next render.
+      if (window.innerWidth === 0) return true;
+
+      compactAtLoad = window.matchMedia(COMPACT_QUERY).matches;
+      return compactAtLoad;
+    },
     () => true,
   );
 }

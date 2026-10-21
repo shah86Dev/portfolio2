@@ -202,3 +202,96 @@ node node_modules/lighthouse/cli/index.js http://localhost:3100/ \
 Run each configuration at least three times, take the median, publish the
 range, and record `environment.benchmarkIndex` next to it. The section above
 shows what happens when you do not.
+
+---
+
+# Production measurement — 2026-10-22
+
+The section above measured a **local production build**. This one measures the
+**deployed site**, which is the number that counts.
+
+| | |
+|---|---|
+| Date | 2026-10-22 |
+| Target | <https://portfolio2-pi-six-98.vercel.app> — Vercel, real TLS and CDN |
+| Lighthouse | 13.5.0, HeadlessChrome/155.0.0.0, same flags as above |
+| Routes | `/` and `/work/aa-matt-whatsapp-agent` |
+| Runs | 20 (5 per route × preset), then `/` re-run 5× per preset on a quiet host |
+
+## Scores
+
+`/` is reported from the **quiet-host re-run** (`benchmarkIndex` 1475 desktop,
+1791 mobile). The case-study route is from the first batch, whose host load
+varied — see the note below for why that is still safe for that route.
+
+| Route | Preset | Performance | Accessibility | Best practices | SEO |
+|-------|--------|-------------|---------------|----------------|-----|
+| `/` | desktop | **95** (85–96) | **100** | **100** | **100** |
+| `/` | mobile | **92** (85–96) | **100** | **100** | **100** |
+| `/work/[slug]` | desktop | **100** (100 on all 5) | **100** | **100** | **100** |
+| `/work/[slug]` | mobile | **95** (87–98) | **100** | **100** | **100** |
+
+Accessibility, best practices and SEO were **100 on all 30 production runs.**
+
+### Against the §6 targets
+
+- **Accessibility ≥ 95 — met**, at 100 everywhere, on the deployed site.
+- **Performance ≥ 90 — met on all four medians** (95, 92, 100, 95).
+- **But the ranges dip to 85.** Individual runs on `/` fell below the target on
+  both presets. The right claim is "a median of 95 with runs between 85 and
+  96", not "95".
+
+### Core Web Vitals
+
+| Route / preset | LCP | TBT | CLS |
+|---|---|---|---|
+| `/` desktop | 0.56 s | 185 ms | **0** |
+| `/` mobile | 2.58 s | 196 ms | **0** |
+| `/work/[slug]` desktop | 0.59 s | 18 ms | **0** |
+| `/work/[slug]` mobile | 2.42 s | 167 ms | **0** |
+
+**CLS was 0 on all 30 production runs**, confirming over a real network what
+the local measurement found: the reserved `aspect-ratio` box means the lazily
+mounted canvas shifts nothing.
+
+## The host-load warning above was right, and caught a wrong conclusion
+
+The first production batch gave `/` desktop a median of **86** — apparently a
+13-point collapse from the local 99, which would have been a real regression
+worth engineering around.
+
+It was not. That batch ran while this session was also running `tsc`, ESLint
+and Vitest, and its `benchmarkIndex` swung from **798 to 1657** — straddling
+both the loaded and quiet bands recorded above. Re-running `/` with nothing
+else on the machine gave **95 (85–96)**.
+
+The case-study route is the control that makes this legible: it scored **100
+on every one of its 5 desktop runs** across a `benchmarkIndex` range of
+886–1657. A route with no 3D chunk is indifferent to host load; `/` is not,
+because the cost that scales with a slow CPU is parsing and executing
+`three`.
+
+So: trust `/work/[slug]` from either batch, and trust `/` only from the quiet
+one. Checking `environment.benchmarkIndex` before believing a performance
+score is not pedantry — it would have produced a false regression here.
+
+## What production costs that localhost does not
+
+Comparing like for like on a quiet host, `/` desktop:
+
+| | Local build | Deployed |
+|---|---|---|
+| Performance | 99 (98–99) | 95 (85–96) |
+| TBT | 80 ms | 185 ms |
+| LCP | 0.65 s | 0.56 s |
+
+**LCP improved** — Vercel's CDN serves the document faster than
+`next start` did. **TBT roughly doubled**, which is the honest cost of the
+universe: over a real network the 236.6 kB gzipped `three` chunk arrives and
+is parsed while the main thread is still busy, instead of being read instantly
+from disk. The case-study route, which loads no canvas, sits at 18 ms of TBT
+on the same origin and the same machine.
+
+That is the price of the centrepiece, now measured rather than assumed. It is
+within the §6 target and it is not free. The reverted idle-gate experiment
+above remains the reason not to reach for the obvious fix.

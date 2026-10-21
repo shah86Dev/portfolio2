@@ -20,8 +20,52 @@ import type { SiteConfig } from "./schema";
  * ============================================================================
  */
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+/** Prefixes a bare host with https://, and leaves a full URL alone. */
+function withScheme(value: string | undefined): string | undefined {
+  const host = value?.trim();
+  if (!host) return undefined;
+  return /^https?:\/\//.test(host) ? host : `https://${host}`;
+}
+
+/**
+ * The site's public origin, resolved at build time in order of preference:
+ *
+ *  1. `NEXT_PUBLIC_SITE_URL` — set this in Vercel. It is the only one that
+ *     survives moving to a custom domain, so it always wins.
+ *  2. The project's stable production domain, which Vercel puts in the build
+ *     environment by itself.
+ *  3. This particular deployment's URL — the right answer for previews.
+ *  4. Local development.
+ *
+ * Steps 2 and 3 exist because of a real failure, not a hypothetical one: on
+ * the first deployment `NEXT_PUBLIC_SITE_URL` had not been set, so every
+ * canonical URL, the sitemap, robots.txt and the Open Graph image pointed at
+ * `http://localhost:3000` — which meant no link preview anywhere would have
+ * loaded. A deployed site should not be able to say that because somebody
+ * forgot a setting, so it now works it out for itself.
+ *
+ * Both the `NEXT_PUBLIC_`-prefixed and bare forms are checked. This module is
+ * only ever imported by Server Components (see docs/architecture.md §3), so
+ * the bare ones are readable; the prefixed ones are belt and braces.
+ */
+function resolveSiteUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    withScheme(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL),
+    withScheme(process.env.VERCEL_PROJECT_PRODUCTION_URL),
+    withScheme(process.env.NEXT_PUBLIC_VERCEL_URL),
+    withScheme(process.env.VERCEL_URL),
+  ];
+
+  for (const candidate of candidates) {
+    const cleaned = candidate?.trim().replace(/\/+$/, "");
+    if (cleaned) return cleaned;
+  }
+
+  return "http://localhost:3000";
+}
+
+const siteUrl = resolveSiteUrl();
 
 export const siteConfigInput: SiteConfig = {
   name: "Shahzaib",

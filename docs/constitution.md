@@ -124,19 +124,48 @@ Target: WCAG 2.2 AA where practical.
    missed on `/` mobile by one point, at a median of 89. Write that as "89,
    just under the target", never as "about 90".
 
+   **Measured again 2026-10-22, against the deployed site** at
+   <https://portfolio2-pi-six-98.vercel.app> — real TLS, real CDN. This is
+   the measurement that counts; the localhost table above is kept for
+   comparison, not replaced. Lighthouse 13.5.0, HeadlessChrome/155, 30 runs.
+   `/` is reported from a re-run on a quiet host (see the second caution).
+
+   | Route | Preset | Perf | A11y | Best practices | SEO |
+   |-------|--------|------|------|----------------|-----|
+   | `/` | desktop | 95 (85–96) | 100 | 100 | 100 |
+   | `/` | mobile | 92 (85–96) | 100 | 100 | 100 |
+   | `/work/[slug]` | desktop | 100 | 100 | 100 | 100 |
+   | `/work/[slug]` | mobile | 95 (87–98) | 100 | 100 | 100 |
+
+   Against the targets in production: **Accessibility met** at 100 on all 30
+   runs. **Performance met on all four medians.** But individual runs on `/`
+   fell to 85 on both presets, so the honest phrasing is "a median of 95,
+   with runs between 85 and 96" — not "95". CLS was 0 on all 30 runs.
+
+   Production costs what localhost hid: TBT on `/` desktop roughly doubled,
+   80 ms → 185 ms, because the 236.6 kB gzipped `three` chunk now arrives
+   over a network instead of off a local disk. LCP *improved*, 0.65 s →
+   0.56 s, on Vercel's CDN. `/work/[slug]`, which loads no canvas, sits at
+   18 ms of TBT on the same origin.
+
    Three cautions, all of which bear on what these numbers mean:
 
-   - **This is localhost, not production.** No real network, no TLS, no CDN,
-     no cold start. The mobile figures are Lighthouse's *emulated* 4× CPU
-     throttle and slow 4G on a desktop CPU, not a phone. The site is not
-     deployed, so no production measurement exists. These scores do not
-     predict one.
+   - **Localhost did not predict production, in either direction.** It was
+     optimistic on blocking time and pessimistic on load time. Keep both
+     tables; quote the production one.
    - **A local performance score mostly measures the host.** The same build
      was measured twice hours apart: with `benchmarkIndex` 786–1053 the `/`
      desktop score was 86 and ranged 78–91; with `benchmarkIndex` 1300–1813 it
      was 98–99. More than twenty points of difference, no code change. Record
      `environment.benchmarkIndex` beside any performance score, run each
      configuration at least three times, and publish the range.
+
+     This caught a wrong conclusion on 2026-10-22. The first production batch
+     put `/` desktop at a median of 86 — an apparent 13-point regression —
+     but it ran while this machine was also running `tsc`, ESLint and Vitest,
+     with `benchmarkIndex` swinging 798–1657. Re-run on a quiet host, the
+     same deployment scored 95. Do not measure performance and run the test
+     suite at the same time.
    - **Accessibility, best practices and SEO are not load-sensitive.** They
      were identical across both sessions and all 20 runs. One run is enough
      for those three; it is never enough for performance.

@@ -72,25 +72,52 @@ Until `NEXT_PUBLIC_SITE_URL` is set, canonical URLs, `sitemap.xml`,
 `http://localhost:3000`. The site works, but search engines and link previews
 will be wrong.
 
-This is why the first deploy runs without it: you do not know the URL until
-Vercel has given you one.
+**You usually do not need to set anything.** The site resolves its own origin
+at build time (`resolveSiteUrl` in `src/content/site.config.ts`):
 
-In **Project → Settings → Environment Variables → Add New**:
+1. `NEXT_PUBLIC_SITE_URL`, if set — always wins
+2. `VERCEL_PROJECT_PRODUCTION_URL` — Vercel's stable domain for the project
+3. `VERCEL_URL` — this specific deployment, which is correct for previews
+4. `http://localhost:3000` — local development only
+
+### Why this exists
+
+The first deployment (2026-10-17) went out without `NEXT_PUBLIC_SITE_URL`.
+Nothing failed: the site rendered perfectly, and `robots.txt`, `sitemap.xml`,
+every canonical URL and the Open Graph image all advertised
+`http://localhost:3000`. Every link preview would have been broken, silently.
+
+Steps 2–4 were added so a deployed build cannot make that claim again
+regardless of what anyone configured. `tests/unit/siteUrl.test.ts` covers the
+whole chain.
+
+### When you do set it
+
+Only once you have a **custom domain** — that is the one case the automatic
+values get wrong, since they keep pointing at `*.vercel.app`.
+
+**Project → Settings → Environment Variables → Add New**:
 
 | Name | Value | Environments |
 |------|-------|--------------|
-| `NEXT_PUBLIC_SITE_URL` | the deployment's own origin, no trailing slash — e.g. `https://portfolio2.vercel.app` | **Production** only |
+| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com`, no trailing slash | **Production** only |
 
 Then **Deployments → latest → ⋯ → Redeploy**. `NEXT_PUBLIC_*` values are
-compiled into the output at build time, so an existing deployment will never
-pick up a new value — saving the variable alone changes nothing.
+compiled into the output at build time, so an existing deployment never picks
+up a new value — **saving the variable alone changes nothing.** This is the
+single easiest step to get wrong.
 
-Leave it unset for Preview deployments. Previews get a different URL every
-time, so a fixed value there would be wrong more often than right; unset, they
-fall back to localhost metadata, which nobody indexes anyway.
+Leave it unset for Preview deployments; they now get their own deployment URL
+from step 3, which is what you want.
 
-Verify it took effect by opening `/robots.txt` on the deployed site: the
-`Sitemap:` line should name your domain, not `localhost:3000`.
+### Verify it took effect
+
+```bash
+curl -s https://your-domain.com/robots.txt
+```
+
+The `Sitemap:` line must name your domain. If it says `localhost:3000`, the
+redeploy did not happen.
 
 > This variable is public by design: it is the address of your own website.
 > Never put a secret in a `NEXT_PUBLIC_*` variable — they are compiled into

@@ -30,7 +30,7 @@ export const experimentsInput: Experiment[] = [
     description:
       "An interactive scene is easy to make and easy to make expensive. The constraint set here: procedural geometry only, no loaded models or textures, no post-processing, a clamped pixel ratio, the whole bundle dynamically imported, and a DOM equivalent that carries the same information for anyone who never loads it.",
     status:
-      "Shipped on this site. Measured on 2026-10-16 against a local production build, five Lighthouse runs per route: the 3D chunk stays out of every route's initial JavaScript, cumulative layout shift is 0 on all twenty runs, and accessibility is 100. Home-route performance is 99 on desktop and 89 on mobile. Not yet measured against a real deployment, which is the number that would count.",
+      "Shipped and now measured against the real deployment (2026-10-22, thirty Lighthouse runs): the 3D chunk stays out of every route's initial JavaScript, cumulative layout shift is 0 on every run, and accessibility is 100. Home-route performance medians 95 on desktop and 92 on mobile, with individual runs as low as 85. The honest finding is the cost: loading the scene roughly doubles main-thread blocking time over a real network, 185 ms against the 18 ms of a page that loads no canvas.",
     tags: ["React Three Fiber", "Performance", "Accessibility"],
   },
   {
