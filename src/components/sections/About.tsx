@@ -21,13 +21,23 @@ const principles = [
   },
 ] as const;
 
+/**
+ * The section standfirst. Deliberately does not restate the bio printed
+ * directly beneath it: an earlier version opened "I build software with AI
+ * coding agents doing most of the typing", which repeated the first bio
+ * paragraph almost word for word on the same screen, and carried a claim
+ * about working habits that nothing in this repository can support.
+ */
+const lead =
+  "The hard part of building this way is not the prompting. It is deciding what is actually worth building, writing it down precisely enough that it can be implemented, and being able to tell afterwards whether it worked.";
+
 export function About() {
   return (
     <Section
       id="about"
       eyebrow="01 — How I think"
       title="Structure first, then speed."
-      lead="I build software with AI coding agents doing most of the typing. That only works when the thinking in front of them is sharp — so the specification, not the code, is the artefact I spend the most care on."
+      lead={lead}
     >
       <div className="grid gap-10 lg:grid-cols-2">
         <div className="space-y-5">

@@ -71,21 +71,36 @@ export const siteConfigInput: SiteConfig = {
   name: "Shahzaib",
   brandTitle: "Shahzaib — AI-Assisted Software Engineering",
 
-  // ⟵ CHECK THIS: drafted positioning copy, not a verified biography.
-  headline: "I turn ideas into intelligent digital products.",
+  // Positioning copy. The headline leads with the outcome because that is
+  // what a visitor skims; the supporting statement carries the method, which
+  // is the actually distinctive part and needs a line of its own.
+  //
+  // Both were rewritten away from an earlier draft that said "intelligent
+  // digital products" and "exploring the intersection of". "Intelligent"
+  // over-claimed: of the four projects on this site, one is an AI product.
+  // "Exploring the intersection of" is portfolio boilerplate, and hedges —
+  // an explorer has not arrived yet.
+  headline: "I turn problems into software that works.",
   supportingStatement:
-    "Exploring the intersection of AI-assisted engineering, thoughtful architecture, and interactive web experiences.",
+    "AI agents do most of the typing. The specification, the review and the tests are what make that worth anything.",
 
-  // ⟵ CHECK THIS: describes how you work. It deliberately makes no claim
-  // about where you have worked, for how long, or for whom.
+  // How you work. It deliberately makes no claim about where you have
+  // worked, for how long, or for whom.
+  //
+  // The first paragraph used to say "most of my work now happens with AI
+  // coding agents". That is a claim about habits that nothing in the
+  // repository can support, so it now points at the projects on this site,
+  // which demonstrably were built that way.
   bio: [
-    "I build software the same way I'd want it built for me: start from the problem, write the specification down, then let implementation follow from it. Most of my work now happens with AI coding agents doing the typing — which only works if the thinking in front of them is sharp.",
-    "That means the specification is the real artefact. It states who the user is, what the system must do, what it must never do, and how we will know it works. The agent writes against that. I review against that. Tests enforce it. When the spec is wrong, the code is wrong in an obvious, fixable way instead of a subtle one.",
-    "I care about the parts people feel: whether the thing is fast, whether it works without a mouse, whether it still works when the fancy layer fails to load. A product that only works on a good laptop with a good connection is a demo, not a product.",
+    "I build software the same way I'd want it built for me: start from the problem, write the specification down, then let the implementation follow from it. The projects on this site were built that way — agents doing the typing, against a specification sharp enough to be worth implementing.",
+    "That makes the specification the real artefact. It states who the user is, what the system must do, what it must never do, and how we will know it works. The agent writes against it, I review against it, and the tests hold it in place. When the specification is wrong, the code is wrong in an obvious, fixable way instead of a subtle one.",
+    "I care about the parts people actually feel: whether it is fast, whether it works without a mouse, whether it still works when the clever layer fails to load. A product that only works on a good laptop with a good connection is a demo, not a product.",
   ],
 
+  // Kept deliberately in step with the headline above: search results and the
+  // browser tab should not say something different from the page.
   seoDescription:
-    "Shahzaib builds software products with AI-assisted engineering and written specifications — conversational AI agents, Next.js interfaces, and spec-driven production pipelines.",
+    "Shahzaib turns problems into software that works — conversational AI agents, interactive Next.js interfaces, and the specifications and tests that keep AI-assisted engineering honest.",
 
   siteUrl,
 
@@ -93,7 +108,9 @@ export const siteConfigInput: SiteConfig = {
     // ⟵ CHECK THIS: defaulted to the address on this machine's Claude account.
     // Replace it if you want a different address shown publicly.
     email: "shahzaib8620@gmail.com",
-    emailSubject: "Project enquiry via shahzaib.dev",
+    // No domain in here: it is pre-filled into the visitor's mail client, and
+    // naming a domain you do not own is worse than naming none.
+    emailSubject: "Project enquiry",
 
     // Add these when you want them linked. Omitted keys simply do not render —
     // the site never shows a dead or placeholder social link.
